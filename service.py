@@ -38,7 +38,7 @@ import sys
 from resources import main
 
 __addon__ = xbmcaddon.Addon()
-__cwd__ = __addon__.getAddonInfo('path')
+__path__ = __addon__.getAddonInfo('path')
 __scriptname__ = __addon__.getAddonInfo('name')
 __version__ = __addon__.getAddonInfo('version')
 __icon__ = __addon__.getAddonInfo('icon')
@@ -46,7 +46,7 @@ __ID__ = __addon__.getAddonInfo('id')
 __language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
 
-sys.path.append(xbmcvfs.translatePath(os.path.join(__cwd__, 'resources', 'lib')))
+sys.path.append(xbmcvfs.translatePath(os.path.join(__path__, 'resources', 'lib')))
 
 
 class MyMonitor(xbmc.Monitor):
