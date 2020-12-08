@@ -33,16 +33,20 @@
 import json
 import os
 import pprint
+import shutil
+
 import xbmc
 import xbmcvfs
 import xbmcaddon
 import subprocess
-import threading
 from resources import kodi_log_pipe
 from unmanic.libs.singleton import SingletonType
 
 __addon__ = xbmcaddon.Addon()
 __path__ = __addon__.getAddonInfo('path')
+__addonname__ = __addon__.getAddonInfo('name')
+__icon__ = __addon__.getAddonInfo('icon')
+__language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
 
 
@@ -61,6 +65,19 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         :return:
         """
         self.configure()
+
+        # TODO: First check if binary dependencies are installed
+        #   if not, offer to download and install them to addon_data.
+        #   Do not start unmanic service unless all dependencies are satisfied.
+        #   Show notification and exit if missing dependencies
+        if not shutil.which("ffmpeg"):
+            # Unable to find FFMPEG in PATH
+            xbmc.log("Unmanic failed to find ffmpeg in PATH", level=xbmc.LOGINFO)
+            xbmc.executebuiltin('Notification(%s, %s, %d, %s)' % (__addonname__, __language__(31001), 5000, __icon__))
+            return
+        else:
+            xbmc.log("Unmanic: Found FFMPEG in path - '{}'".format(shutil.which("ffmpeg")), level=xbmc.LOGDEBUG)
+
         xbmc.log("Running Unmanic process", level=xbmc.LOGINFO)
 
         message = pprint.pformat(self.unmanic_env, indent=1)
@@ -81,7 +98,8 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         :return:
         """
         xbmc.log("Terminating Unmanic process", level=xbmc.LOGINFO)
-        self.unmanic_process.terminate()
+        if self.unmanic_process:
+            self.unmanic_process.terminate()
 
     def poll(self):
         """
@@ -97,13 +115,13 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         # Write settings to dump to settings json file
         settings_dict = {
             'CONFIG_PATH': os.path.join(__profile__, '.unmanic', 'config'),
-            'LOG_PATH':    os.path.join(__profile__, '.unmanic', 'logs'),
-            'DATABASE':    {
-                "TYPE":           "SQLITE",
-                "FILE":           os.path.join(__profile__, '.unmanic', 'config', 'unmanic.db'),
+            'LOG_PATH'   : os.path.join(__profile__, '.unmanic', 'logs'),
+            'DATABASE'   : {
+                "TYPE"          : "SQLITE",
+                "FILE"          : os.path.join(__profile__, '.unmanic', 'config', 'unmanic.db'),
                 "MIGRATIONS_DIR": os.path.join(__path__, 'resources', 'lib', 'unmanic', 'migrations'),
             },
-            'UI_PORT':     xbmcaddon.Addon().getSetting('P_port'),
+            'UI_PORT'    : xbmcaddon.Addon().getSetting('P_port'),
         }
         xbmc.log("Unmanic Settings.json: \n%s" % (str(pprint.pformat(settings_dict, indent=1))), level=xbmc.LOGDEBUG)
 
@@ -116,6 +134,10 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
                 json.dump(settings_dict, outfile, sort_keys=True, indent=4)
         except Exception as e:
             xbmc.log("Error writing Unmanic settings: {}".format(str(e)), level=xbmc.LOGERROR)
+
+        # If the dependency bin path exists, append it to the ENV PATH
+        if os.path.exists(os.path.join(__profile__, 'bin')):
+            os.environ['PATH'] = ':'.join([os.getenv('PATH'), os.path.join(__profile__, 'bin')])
 
         # Also write settings to set in environment
         self.unmanic_env = os.environ.copy()

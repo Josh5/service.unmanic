@@ -5,7 +5,7 @@
     unmanic
 
     Written by:               Josh.5 <jsunnex@gmail.com>
-    Date:                     06 Dec 2020, (7:21 AM)
+    Date:                     08 Dec 2020, (22:30 PM)
 
     Copyright:
            Copyright (C) Josh Sunnex - All Rights Reserved
@@ -31,29 +31,26 @@
 """
 
 import xbmc
-import xbmcaddon
-import sys
-
-__addon__ = xbmcaddon.Addon()
+import xbmcgui
+from urllib import request
 
 
-class Default(object):
-
-    def download_dependencies(self):
-        from resources import fetch_dependencies
-        dependencies = fetch_dependencies.UnmanicDependencies()
-        dependencies.fetch_ffmpeg()
-
-    def run(self):
-        if len(sys.argv) > 1:
-            exec_method = sys.argv[1]
-            xbmc.log("Unmanic called with arg: '{}' - exists:{}".format(exec_method, hasattr(self, exec_method)),
-                     level=xbmc.LOGDEBUG)
-            getattr(self, exec_method)()
-        else:
-            __addon__.openSettings()
+def download(url, dest, dp=None):
+    if not dp:
+        dp = xbmcgui.DialogProgress()
+        dp.create("Unmanic", "Downloading & Copying File", ' ', ' ')
+    dp.update(0)
+    request.urlretrieve(url, dest, lambda nb, bs, fs, url=url: _pbhook(nb, bs, fs, url, dp))
 
 
-if __name__ == '__main__':
-    default = Default()
-    default.run()
+def _pbhook(numblocks, blocksize, filesize, url, dp):
+    try:
+        percent = int(min((numblocks * blocksize * 100) / filesize, 100))
+        dp.update(percent)
+    except Exception as e:
+        xbmc.log('Unmanic: Completed file download - {}'.format(str(e)), level=xbmc.LOGDEBUG)
+        percent = 100
+        dp.update(percent)
+    if dp.iscanceled():
+        raise Exception("Canceled")
+        dp.close()

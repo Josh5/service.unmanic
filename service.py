@@ -39,7 +39,7 @@ from resources import main
 
 __addon__ = xbmcaddon.Addon()
 __path__ = __addon__.getAddonInfo('path')
-__scriptname__ = __addon__.getAddonInfo('name')
+__addonname__ = __addon__.getAddonInfo('name')
 __version__ = __addon__.getAddonInfo('version')
 __icon__ = __addon__.getAddonInfo('icon')
 __ID__ = __addon__.getAddonInfo('id')
