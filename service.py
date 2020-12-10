@@ -33,8 +33,6 @@
 import xbmc
 import xbmcvfs
 import xbmcaddon
-import os
-import sys
 from resources import main
 
 __addon__ = xbmcaddon.Addon()
@@ -45,8 +43,6 @@ __icon__ = __addon__.getAddonInfo('icon')
 __ID__ = __addon__.getAddonInfo('id')
 __language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
-
-sys.path.append(xbmcvfs.translatePath(os.path.join(__path__, 'resources', 'lib')))
 
 
 class MyMonitor(xbmc.Monitor):

@@ -30,17 +30,16 @@
 
 """
 
-import json
 import os
+import sys
+import json
 import pprint
 import shutil
-
+import subprocess
 import xbmc
 import xbmcvfs
 import xbmcaddon
-import subprocess
 from resources import kodi_log_pipe
-from unmanic.libs.singleton import SingletonType
 
 __addon__ = xbmcaddon.Addon()
 __path__ = __addon__.getAddonInfo('path')
@@ -48,6 +47,11 @@ __addonname__ = __addon__.getAddonInfo('name')
 __icon__ = __addon__.getAddonInfo('icon')
 __language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
+
+# Modify path to include lib directory
+sys.path.append(xbmcvfs.translatePath(os.path.join(__path__, 'resources', 'lib')))
+# import unmanic's SingletonType
+from unmanic.libs.singleton import SingletonType
 
 
 class UnmanicServiceHandle(object, metaclass=SingletonType):
@@ -144,3 +148,4 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         self.unmanic_env['HOME_DIR'] = __profile__
         self.unmanic_env['CONFIG_PATH'] = settings_dict['CONFIG_PATH']
         self.unmanic_env['LOG_PATH'] = settings_dict['LOG_PATH']
+        self.unmanic_env['PYTHONPATH'] = os.path.join(__path__, 'resources', 'lib')
