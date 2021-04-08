@@ -44,7 +44,7 @@ mark_step success
 
 print_step "Installing dependencies"
 source "${addon_root}/venv/bin/activate"
-python3 -m pip install --target="${addon_root}/resources/lib" -r requirements.txt 1> /dev/null
+python3 -m pip install --target="${addon_root}/resources/lib" -r requirements.txt &> ${addon_root}/build.log
 [[ $? > 0 ]] && mark_step failed && exit 1
 mark_step success
 
@@ -125,6 +125,12 @@ for directory in "${remove_directories[@]}"; do
     [[ $? > 0 ]] && mark_step failed && exit 1
     mark_step success
 done
+
+# Ensure all files are not executable
+print_step "Ensure all resources are not executable"
+find "${addon_root}/resources" -type f -exec chmod a-x {} +
+[[ $? > 0 ]] && mark_step failed && exit 1
+mark_step success
 
 # Clean up Python VENV
 print_step "Cleaning up 'venv' directory"

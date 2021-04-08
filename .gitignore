@@ -1,4 +1,8 @@
+# Ignored in all branches:
 /.idea/**
-/addon.xml
+/build.log
 /venv/**
+
+# Only ignored in master branch:
+/addon.xml
 /resources/lib/**
