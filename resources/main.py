@@ -56,7 +56,7 @@ from unmanic.libs.singleton import SingletonType
 
 class UnmanicServiceHandle(object, metaclass=SingletonType):
     unmanic_process = None
-    unmanic_command = ['python', os.path.join(__path__, 'resources', 'lib', 'unmanic', 'service.py')]
+    unmanic_command = [sys.executable, os.path.join(__path__, 'resources', 'lib', 'unmanic', 'service.py')]
     unmanic_env = {}
 
     def __init__(self):
@@ -116,28 +116,9 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
     def configure(self):
         xbmc.log("Configure Unmanic environment", level=xbmc.LOGINFO)
 
-        # Write settings to dump to settings json file
-        settings_dict = {
-            'CONFIG_PATH': os.path.join(__profile__, '.unmanic', 'config'),
-            'LOG_PATH'   : os.path.join(__profile__, '.unmanic', 'logs'),
-            'DATABASE'   : {
-                "TYPE"          : "SQLITE",
-                "FILE"          : os.path.join(__profile__, '.unmanic', 'config', 'unmanic.db'),
-                "MIGRATIONS_DIR": os.path.join(__path__, 'resources', 'lib', 'unmanic', 'migrations'),
-            },
-            'UI_PORT'    : xbmcaddon.Addon().getSetting('P_port'),
-        }
-        xbmc.log("Unmanic Settings.json: \n%s" % (str(pprint.pformat(settings_dict, indent=1))), level=xbmc.LOGDEBUG)
-
         # Write settings to json file
-        settings_file = os.path.join(settings_dict['CONFIG_PATH'], 'settings.json')
-        if not os.path.exists(settings_dict['CONFIG_PATH']):
-            os.makedirs(settings_dict['CONFIG_PATH'])
-        try:
-            with open(settings_file, 'w') as outfile:
-                json.dump(settings_dict, outfile, sort_keys=True, indent=4)
-        except Exception as e:
-            xbmc.log("Error writing Unmanic settings: {}".format(str(e)), level=xbmc.LOGERROR)
+        os.environ['HOME_DIR'] = os.path.join(__profile__)
+        os.environ['CONFIG_PATH'] = os.path.join(__profile__, '.unmanic', 'config')
 
         # If the dependency bin path exists, append it to the ENV PATH
         if os.path.exists(os.path.join(__profile__, 'bin')):
@@ -146,6 +127,5 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         # Also write settings to set in environment
         self.unmanic_env = os.environ.copy()
         self.unmanic_env['HOME_DIR'] = __profile__
-        self.unmanic_env['CONFIG_PATH'] = settings_dict['CONFIG_PATH']
-        self.unmanic_env['LOG_PATH'] = settings_dict['LOG_PATH']
+        self.unmanic_env['CONFIG_PATH'] = os.path.join(__profile__, '.unmanic', 'config')
         self.unmanic_env['PYTHONPATH'] = os.path.join(__path__, 'resources', 'lib')

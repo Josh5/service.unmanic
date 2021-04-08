@@ -1,3 +1,4 @@
 /.idea/**
-/resources/lib/**
 /addon.xml
+/venv/**
+/resources/lib/**
