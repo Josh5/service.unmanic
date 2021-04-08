@@ -39,9 +39,25 @@ sed -i "s|{VERSION}|${unmanic_version_major}.${unmanic_version_minor}.${unmanic_
 [[ $? > 0 ]] && exit 1
 
 # Remove everything except the Python source
-echo -e "\n      - Cleaning out compiled Python files"
-find "${addon_root}/resources/lib" -type f -name "*.py[o|c]" -delete 
-[[ $? > 0 ]] && exit 1
+remove_extensions=(
+    "ans"
+    "bz2"
+    "db"
+    "dll"
+    "exe"
+    "gz"
+    "mo"
+    "pyc"
+    "pyo"
+    "so"
+    "xbt"
+    "xpr"
+)
+for ext in "${remove_extensions[@]}"; do
+    echo -e "\n      - Cleaning out '*.${ext}' files"
+    find "${addon_root}/resources/lib" -type f -iname "*.${ext}" -delete 
+    [[ $? > 0 ]] && exit 1
+done
 echo -e "\n      - Cleaning out Python cache directories"
 find "${addon_root}/resources/lib" -type d -name "__pycache__" -exec rm -rf {} +
 [[ $? > 0 ]] && exit 1
