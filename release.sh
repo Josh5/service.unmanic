@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 1:09:05 am
+# Last Modified: Friday, 9th April 2021 1:27:58 am
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -68,7 +68,7 @@ echo -e "\n*** Commit changes in temp repo"
 commit_message="Deploy add-on - based on ${current_commit} ${dirty_repo} - Unmanic v${unmanic_version}"
 git add .
 git commit -m "${commit_message}"
-git tag -f -a ${unmanic_version}
+git tag -f ${unmanic_version}
 
 popd &> /dev/null
 
