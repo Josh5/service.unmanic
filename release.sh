@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 1:44:07 am
+# Last Modified: Friday, 9th April 2021 1:49:59 am
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -55,8 +55,10 @@ popd &> /dev/null
 # Cleanup release files
 pushd ${tmp_dir}/service.unmanic &> /dev/null
 
+echo -e "\n*** Remove template files for the release branch in temp repo"
 rm -f  "${tmp_dir}/service.unmanic/addon.template.xml"
-rm -f  "${tmp_dir}/service.unmanic/*.sh"
+rm -f  "${tmp_dir}/service.unmanic/build.sh"
+rm -f  "${tmp_dir}/service.unmanic/release.sh"
 rm -f  "${tmp_dir}/service.unmanic/requirements.txt"
 
 popd &> /dev/null
