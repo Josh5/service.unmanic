@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 2:10:07 am
+# Last Modified: Friday, 9th April 2021 11:35:30 am
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -38,7 +38,9 @@ popd &> /dev/null
 pushd ${tmp_dir}/service.unmanic &> /dev/null
 
 echo -e "\n*** Installing updates to release branch in temp repo"
-cp -rf ${project_directory}/* ${tmp_dir}/service.unmanic/
+rsync -ra --delete \
+    --exclude='.git/' \
+    ${project_directory}/ ${tmp_dir}/service.unmanic/
 
 echo -e "\n*** Building add-on deps in temp repo"
 chmod +x ./build.sh && ./build.sh
