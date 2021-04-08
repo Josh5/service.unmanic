@@ -34,11 +34,11 @@ Unmanic provides you with the following main functions:
 service.unmanic:
 --------------------------
 
-View changelog on https://github.com/Josh5/unmanic/
+View changelog on https://github.com/Unmanic/unmanic/
 
     </news>
     <platform>linux</platform>
-    <website>https://github.com/Josh5/unmanic/</website>
+    <website>https://github.com/Unmanic/unmanic/</website>
     <assets>
         <icon>icon.png</icon>
         <fanart>fanart.jpg</fanart>
