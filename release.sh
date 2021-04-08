@@ -5,13 +5,13 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 1:27:58 am
+# Last Modified: Friday, 9th April 2021 1:41:59 am
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
 
 project_directory=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
-tmp_dir=$(mktemp -d)
+tmp_dir=$(mktemp -d --suffix='-unmanic-service-for-kodi')
 
 
 # Fetch git commit and if there are uncommitted chagnes
@@ -29,7 +29,8 @@ pushd ${project_directory} &> /dev/null
 
 echo -e "\n*** Clone temp repo of project"
 origin_url=$(git config --get remote.origin.url)
-git clone --depth=1 --branch release --single-branch "${origin_url}" "${tmp_dir}/service.unmanic"
+git clone --depth=1 --branch release --single-branch "${origin_url}" "${tmp_dir}"
+mkdir -p ${tmp_dir}/service.unmanic
 
 popd &> /dev/null
 
