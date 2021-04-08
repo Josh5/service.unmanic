@@ -10,20 +10,22 @@ $(".login-with-patreon").click(function (e) {
                 let current_uri = window.location.origin + "/dashboard/?ajax=login";
                 let uuid = data.uuid;
                 let url = data.data.url;
-                let form = $('<form action="' + url + '" method="post">' +
-                    '<input type="text" name="uuid" value="' + uuid + '" />' +
-                    '<input type="text" name="current_uri" value="' + current_uri + '" />' +
-                    '</form>');
-                console.log(form)
+                let form = $(
+                    '<form action="' + url + '" method="post">' +
+                    '<input type="hidden" name="uuid" value="' + uuid + '" />' +
+                    '<input type="hidden" name="current_uri" value="' + current_uri + '" />' +
+                    '</form>'
+                );
+                console.debug(form);
                 $('body').append(form);
                 form.submit();
             } else {
                 // Our query was unsuccessful
-                console.error('An error occurred while fetching the patreon client ID.');
+                console.error('An error occurred while fetching the patreon login url.');
             }
         },
         error: function (data) {
-            console.error('An error occurred while fetching the patreon client ID.');
+            console.error('An error occurred while fetching the patreon login url.');
         },
     });
 });
@@ -52,6 +54,38 @@ $(".sponsor-with-patreon").click(function (e) {
         },
         error: function (data) {
             console.error('An error occurred while etching the patreon sponsor page.');
+        },
+    });
+});
+
+$(".unmanic-sign-out").click(function (e) {
+    // Get unmanic sign out client ID
+    $.ajax({
+        url: '/api/v1/session/unmanic-sign-out-url',
+        type: 'GET',
+        success: function (data) {
+            if (data.success) {
+                // If query was successful
+                // let current_uri = window.location.href;
+                let current_uri = window.location.origin + "/dashboard/?ajax=login";
+                let uuid = data.uuid;
+                let url = data.data.url;
+                let form = $(
+                    '<form action="' + url + '" method="post" class="display:none;">' +
+                    '<input type="hidden" name="uuid" value="' + uuid + '" />' +
+                    '<input type="hidden" name="current_uri" value="' + current_uri + '" />' +
+                    '</form>'
+                );
+                console.debug(form);
+                $('body').append(form);
+                form.submit();
+            } else {
+                // Our query was unsuccessful
+                console.error('An error occurred while fetching the sign out form details.');
+            }
+        },
+        error: function (data) {
+            console.error('An error occurred while fetching the sign out form details.');
         },
     });
 });

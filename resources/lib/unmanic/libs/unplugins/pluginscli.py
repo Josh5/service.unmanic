@@ -31,7 +31,11 @@
 """
 import json
 import os
+import re
+
 import inquirer
+
+from . import plugin_types
 
 from unmanic import config
 from unmanic.libs import unlogger, common
@@ -47,13 +51,15 @@ menus = {
                 'Test installed plugins',
                 'List installed plugins',
                 'Create new plugin',
+                'Reload plugin from disk',
+                'Remove plugin',
                 'Exit',
             ],
         ),
     ],
     "create_plugin": [
-        inquirer.Text('plugin_name', message="What's the plugin's name"),
         inquirer.Text('plugin_id', message="What's the plugin's id"),
+        inquirer.Text('plugin_name', message="What's the plugin's name"),
     ],
 }
 
@@ -95,6 +101,15 @@ def print_table(table_data, col_list=None, sep='\uFFFA'):
         item = [i[1] if len(i) > 1 else '' for i in row]
 
 
+def install_plugin_requirements(plugin_path):
+    requirements_file = os.path.join(plugin_path, 'requirements.txt')
+    install_target = os.path.join(plugin_path, 'site-packages')
+    if not os.path.exists(requirements_file):
+        return
+    import pip
+    pip.main(['install', '--upgrade', '-r', requirements_file, '--target={}'.format(install_target)])
+
+
 class PluginsCLI(object):
 
     def __init__(self, plugins_directory=None):
@@ -121,16 +136,45 @@ class PluginsCLI(object):
             print("ERROR! Invalid input.")
             return
 
-        # TODO: Ensure plugin ID has only underscore and a-z, 0-9
+        # Ensure plugin ID has only underscore and a-z, 0-9
+        plugin_details['plugin_id'] = re.sub('[^0-9a-zA-Z]+', '_', plugin_details.get('plugin_id'))
+        # Ensure plugin ID is lower case
+        plugin_details['plugin_id'] = plugin_details.get('plugin_id').lower()
+
+        # Get list of plugin types
+        all_plugin_types = plugin_types.get_all_plugin_types()
+
+        # Build choice selection list from installed plugins
+        plugin_details_by_runner = {}
+        choices = []
+        for plugin_type in all_plugin_types:
+            choices.append(all_plugin_types[plugin_type].get('name'))
+            plugin_details_by_runner[all_plugin_types[plugin_type].get('name')] = all_plugin_types[plugin_type]
+
+        # Generate menu menu
+        print()
+        print('INFO: https://docs.unmanic.app/docs/plugins/writing_plugins/plugin_runner_types')
+        plugin_runners_inquirer = inquirer.List(
+            'selected_plugin',
+            message="Which Plugin runner will be used?",
+            choices=choices,
+        )
+
+        # Prompt for selection of Plugin by ID
+        runner_selection = inquirer.prompt([plugin_runners_inquirer])
+
+        # Fetch plugin type details from selection
+        plugin_type_details = plugin_details_by_runner[runner_selection.get('selected_plugin')]
+        selected_plugin_runner = plugin_type_details.get('runner')
+        selected_plugin_runner_docstring = plugin_type_details.get('runner_docstring')
 
         # Create new plugin path
         new_plugin_path = os.path.join(self.plugins_directory, plugin_details.get('plugin_id'))
         if not os.path.exists(new_plugin_path):
             os.makedirs(new_plugin_path)
 
-        # Touch main python file
-        main_python_file = os.path.join(new_plugin_path, 'plugin.py')
-        plugin_template = [
+        # Create main python file template
+        main_plugin_template = [
             "#!/usr/bin/env python3",
             "# -*- coding: utf-8 -*-",
             "",
@@ -142,13 +186,27 @@ class PluginsCLI(object):
             "",
             ""
         ]
+
+        # Create runner function template
+        runner_template = [
+            'def {}(data):'.format(selected_plugin_runner),
+            '    """{}'.format(selected_plugin_runner_docstring),
+            '    """',
+            '    return data',
+        ]
+
+        # Write above templates to main python file
+        main_python_file = os.path.join(new_plugin_path, 'plugin.py')
         if not os.path.exists(main_python_file):
             with open(main_python_file, 'a') as outfile:
-                for plugin_template_line in plugin_template:
-                    outfile.write("{}\n".format(plugin_template_line))
+                # Write out main template
+                for template_line in main_plugin_template:
+                    outfile.write("{}\n".format(template_line))
+                # Write out runner function template
+                for template_line in runner_template:
+                    outfile.write("{}\n".format(template_line))
 
-        common.touch(os.path.join(new_plugin_path, 'plugin.py'))
-        # Create plugin info.json
+        # Write plugin info.json
         info_file = os.path.join(new_plugin_path, 'info.json')
         plugin_info = {
             "id":          plugin_details.get('plugin_id'),
@@ -163,8 +221,23 @@ class PluginsCLI(object):
             with open(info_file, 'w') as outfile:
                 json.dump(plugin_info, outfile, sort_keys=True, indent=4)
 
-        # Insert plugin details to DB
+        # Create requirements.txt file
+        common.touch(os.path.join(new_plugin_path, 'requirements.txt'))
 
+        # Create Plugin .gitignore
+        plugin_gitignore = os.path.join(new_plugin_path, '.gitignore')
+        gitignore_template = [
+            '**/__pycache__',
+            '*.py[cod]',
+            '**/site-packages',
+            'settings.json',
+        ]
+        if not os.path.exists(plugin_gitignore):
+            with open(plugin_gitignore, 'a') as outfile:
+                for template_line in gitignore_template:
+                    outfile.write("{}\n".format(template_line))
+
+        # Insert plugin details to DB
         try:
             PluginsHandler.write_plugin_data_to_db(plugin_info, new_plugin_path)
         except Exception as e:
@@ -172,6 +245,70 @@ class PluginsCLI(object):
             return
 
         print("Plugin created - '{}'".format((plugin_details.get('plugin_id'))))
+
+    def reload_plugin_from_disk(self):
+        # Fetch list of installed plugins
+        plugins = PluginsHandler()
+        order = {
+            "column": 'position',
+            "dir":    'desc',
+        }
+        plugin_results = plugins.get_plugin_list_filtered_and_sorted(order=order, start=0, length=None)
+
+        # Build choice selection list from installed plugins
+        for plugin in plugin_results:
+            plugin_path = os.path.join(self.plugins_directory, plugin.get('plugin_id'))
+            # Read plugin info.json
+            info_file = os.path.join(plugin_path, 'info.json')
+            with open(info_file) as json_file:
+                plugin_info = json.load(json_file)
+
+            # Insert plugin details to DB
+            try:
+                PluginsHandler.write_plugin_data_to_db(plugin_info, plugin_path)
+            except Exception as e:
+                print("Exception while saving plugin info to DB. - {}".format(str(e)))
+                return
+
+            install_plugin_requirements(plugin_path)
+
+    @staticmethod
+    def remove_plugin():
+        # Fetch list of installed plugins
+        plugins = PluginsHandler()
+        order = {
+            "column": 'position',
+            "dir":    'desc',
+        }
+        plugin_results = plugins.get_plugin_list_filtered_and_sorted(order=order, start=0, length=None)
+
+        # Build choice selection list from installed plugins
+        table_ids = {}
+        choices = []
+        for plugin in plugin_results:
+            choices.append(plugin.get('plugin_id'))
+            table_ids[plugin.get('plugin_id')] = plugin.get('id')
+        # Append a "return" option
+        choices.append('Return')
+
+        # Generate menu menu
+        remove_plugin_inquirer = inquirer.List(
+            'cli_action',
+            message="Which Plugin would you like to remove?",
+            choices=choices,
+        )
+
+        # Prompt for selection of Plugin by ID
+        selection = inquirer.prompt([remove_plugin_inquirer])
+
+        # If the 'Return' option was given, just return to previous menu
+        if selection.get('cli_action') == "Return":
+            return
+
+        # Remove the selected Plugin by ID
+        plugin_table_id = table_ids[selection.get('cli_action')]
+        plugins.uninstall_plugins_by_db_table_id([plugin_table_id])
+        print()
 
     @staticmethod
     def list_installed_plugins():
@@ -234,9 +371,11 @@ class PluginsCLI(object):
 
     def main(self, arg):
         switcher = {
-            'Test installed plugins': 'test_installed_plugins',
-            'List installed plugins': 'list_installed_plugins',
-            'Create new plugin':      'create_new_plugins',
+            'Test installed plugins':  'test_installed_plugins',
+            'List installed plugins':  'list_installed_plugins',
+            'Create new plugin':       'create_new_plugins',
+            'Reload plugin from disk': 'reload_plugin_from_disk',
+            'Remove plugin':           'remove_plugin',
         }
         function = switcher.get(arg, None)
         if function:

@@ -172,8 +172,7 @@ class PluginsHandler(object, metaclass=SingletonType):
             return repo_data
         return {}
 
-    @staticmethod
-    def get_plugins_in_repo_data(repo_data):
+    def get_plugins_in_repo_data(self, repo_data):
         return_list = []
         if 'repo' in repo_data and 'plugins' in repo_data:
             # Get URLs for plugin downloads
@@ -188,6 +187,22 @@ class PluginsHandler(object, metaclass=SingletonType):
             # Loop over
             for plugin in repo_data.get("plugins", []):
                 plugin["url"] = "{0}/{1}/{1}-{2}.zip".format(repo_data_directory, plugin.get('id'), plugin.get('version'))
+                plugin["changelog_url"] = "{0}/{1}/changelog.txt".format(repo_data_directory, plugin.get('id'))
+
+                # Check if plugin is already installed:
+                plugin["installed"] = False
+                plugin_directory = os.path.join(self.settings.get_plugins_path(), plugin.get('id'))
+                if os.path.exists(plugin_directory):
+                    # Read plugin info.json
+                    info_file = os.path.join(plugin_directory, 'info.json')
+                    with open(info_file) as json_file:
+                        plugin_info = json.load(json_file)
+                    local_version = plugin_info.get('version')
+                    # Parse the currently installed version number and check if it matches
+                    remote_version = plugin.get('version')
+                    if local_version == remote_version:
+                        plugin["installed"] = True
+
                 # If no icon is provide, set a default
                 if not plugin["icon"]:
                     plugin["icon"] = "/assets/global/img/plugin-icon-default.svg"
@@ -207,6 +222,12 @@ class PluginsHandler(object, metaclass=SingletonType):
             return_list = return_list + plugins_in_repo
 
         return return_list
+
+    def read_remote_changelog_file(self, changelog_url):
+        r = requests.get(changelog_url, timeout=1)
+        if r.status_code == 200:
+            return r.text
+        return ''
 
     def notify_site_of_plugin_install(self, plugin):
         """
@@ -404,7 +425,14 @@ class PluginsHandler(object, metaclass=SingletonType):
 
         return True
 
-    def uninstall_plugins_by_db_table_id(self, plugin_table_ids):
+    def uninstall_plugins_by_db_table_id(self, plugin_table_ids: list):
+        """
+        Remove a Plugin by it's DB table ID column.
+        This will also remove the Plugin directory and all it's contents.
+
+        :param plugin_table_ids:
+        :return:
+        """
         self._log("Uninstall plugins '{}'".format(plugin_table_ids), level='debug')
 
         # Fetch records

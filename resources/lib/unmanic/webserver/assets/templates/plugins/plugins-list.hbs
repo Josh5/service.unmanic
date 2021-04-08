@@ -7,26 +7,30 @@
             <span class="hidden plugin_author">{{author}}</span>
             <div class="tile-container">
                 <div class="tile-thumbnail">
-                    <a href="javascript:;" onclick="showPluginInfo('{{id}}');" title="Info"
+                    <a href="#" onclick="showPluginInfo('{{id}}');" title="Info"
                        data-toggle="modal" data-target="#configure-plugin">
-                        <img src="{{icon}}" style="height:100%;"/>
+                        <img src="{{icon}}" style="height:100%;width:auto;"/>
                     </a>
                 </div>
                 <div class="tile-title">
                     <h3>
-                        <a href="javascript:;" onclick="showPluginInfo('{{id}}');" title="Info"
+                        <a href="#" onclick="showPluginInfo('{{id}}');" title="Info"
                            data-toggle="modal" data-target="#configure-plugin">
                             {{name}}
                         </a>
                     </h3>
                     <br><br>
-                    <a href="javascript:;" onclick="showPluginInfo('{{id}}');" title="Info"
+                    <a href="#" onclick="showPluginInfo('{{id}}');" title="Info"
                        data-toggle="modal" data-target="#configure-plugin">
                         <i class="icon-question font-blue"></i>
                     </a>
-                    <a href="javascript:downloadPlugin('{{id}}', '{{@index}}');">
-                        <i class="icon-cloud-download font-green-meadow"></i>
-                    </a>
+                    {{#if installed}}
+                        <i class="icon-check font-green-meadow"></i>
+                    {{else}}
+                        <a href="javascript:downloadPlugin('{{id}}', '{{@index}}');">
+                            <i class="icon-cloud-download font-yellow-gold"></i>
+                        </a>
+                    {{/if}}
                     <div class="tile-desc">
                         <p>
                             Author:
