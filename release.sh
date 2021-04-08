@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 1:41:59 am
+# Last Modified: Friday, 9th April 2021 1:44:07 am
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -78,6 +78,6 @@ popd &> /dev/null
 pushd ${tmp_dir}/service.unmanic &> /dev/null
 
 echo -e "\n*** Publish changes in temp repo"
-git push origin release --tags
+git push -f origin release --tags
 
 popd &> /dev/null
