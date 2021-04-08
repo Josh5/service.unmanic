@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 1:49:59 am
+# Last Modified: Friday, 9th April 2021 2:10:07 am
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -29,8 +29,7 @@ pushd ${project_directory} &> /dev/null
 
 echo -e "\n*** Clone temp repo of project"
 origin_url=$(git config --get remote.origin.url)
-git clone --depth=1 --branch release --single-branch "${origin_url}" "${tmp_dir}"
-mkdir -p ${tmp_dir}/service.unmanic
+git clone --depth=1 --branch release --single-branch "${origin_url}" "${tmp_dir}/service.unmanic"
 
 popd &> /dev/null
 
