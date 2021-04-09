@@ -49,10 +49,30 @@ msgctxt "#31016"
 msgid "Filename: "
 msgstr ""
 
+msgctxt "#31017"
+msgid "Error!"
+msgstr ""
+
 msgctxt "#32001"
 msgid "Unmanic"
 msgstr ""
 
 msgctxt "#32002"
 msgid "FFMPEG"
+msgstr ""
+
+msgctxt "#33001"
+msgid "Add file to Unmanic"
+msgstr ""
+
+msgctxt "#33002"
+msgid "Could not resolve path info for: {}"
+msgstr ""
+
+msgctxt "#33003"
+msgid "Selected path is not a file: {}"
+msgstr ""
+
+msgctxt "#33004"
+msgid "Unable to reach Unmanic API. Please check that it is running locally on port `{}`."
 msgstr ""
