@@ -132,10 +132,4 @@ find "${addon_root}/resources" -type f -exec chmod a-x {} +
 [[ $? > 0 ]] && mark_step failed && exit 1
 mark_step success
 
-# Clean up Python VENV
-print_step "Cleaning up 'venv' directory"
-rm -rf "${addon_root}/venv"
-[[ $? > 0 ]] && mark_step failed && exit 1
-mark_step success
-
 exit 0
