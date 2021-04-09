@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Friday, 9th April 2021 11:35:30 am
+# Last Modified: Friday, 9th April 2021 12:09:26 pm
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -61,6 +61,9 @@ rm -f  "${tmp_dir}/service.unmanic/addon.template.xml"
 rm -f  "${tmp_dir}/service.unmanic/build.sh"
 rm -f  "${tmp_dir}/service.unmanic/release.sh"
 rm -f  "${tmp_dir}/service.unmanic/requirements.txt"
+
+echo -e "\n*** Remove my docs for the release branch in temp repo"
+rm -rf  "${tmp_dir}/service.unmanic/docs"
 
 popd &> /dev/null
 

@@ -40,7 +40,9 @@ git checkout matrix
 # Fetch the latest changes
 git pull --strategy subtree --squash unmanic release --allow-unrelated-histories
 
-# Amend the previous commit and force push (only one commit per PR)
+# Amend the previous commit
 git commit --amend
+
+# Force push (only one commit per PR)
 git push -f origin matrix
 ```
