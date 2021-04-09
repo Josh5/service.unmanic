@@ -32,7 +32,6 @@
 
 import os
 import sys
-import json
 import pprint
 import shutil
 import subprocess
@@ -127,5 +126,6 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         # Also write settings to set in environment
         self.unmanic_env = os.environ.copy()
         self.unmanic_env['HOME_DIR'] = __profile__
+        self.unmanic_env['UI_PORT'] = __addon__.getSetting("P_port")
         self.unmanic_env['CONFIG_PATH'] = os.path.join(__profile__, '.unmanic', 'config')
         self.unmanic_env['PYTHONPATH'] = os.path.join(__path__, 'resources', 'lib')
