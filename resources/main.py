@@ -46,16 +46,16 @@ __addonname__ = __addon__.getAddonInfo('name')
 __icon__ = __addon__.getAddonInfo('icon')
 __language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
+__unmanic_module_path__ = xbmcaddon.Addon('script.module.unmanic').getAddonInfo('path')
 
 # Modify path to include lib directory
 sys.path.append(xbmcvfs.translatePath(os.path.join(__path__, 'resources', 'lib')))
-# import unmanic's SingletonType
-from unmanic.libs.singleton import SingletonType
 
 
-class UnmanicServiceHandle(object, metaclass=SingletonType):
+class UnmanicServiceHandle(object):
     unmanic_process = None
-    unmanic_command = [sys.executable, os.path.join(__path__, 'resources', 'lib', 'unmanic', 'service.py')]
+    # unmanic_command = [sys.executable, os.path.join(__path__, 'resources', 'lib', 'unmanic', 'service.py')]
+    unmanic_command = [sys.executable, os.path.join(__unmanic_module_path__, 'lib', 'unmanic', 'service.py')]
     unmanic_env = {}
 
     def __init__(self):

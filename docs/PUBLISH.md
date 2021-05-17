@@ -37,6 +37,9 @@ git read-tree --prefix=service.unmanic/ -u unmanic_release
 # Checkout the official branch
 git checkout matrix
 
+# Create branch of offical branch
+git checkout matrix-ADDON_NAME
+
 # Fetch the latest changes
 git pull --strategy subtree --squash unmanic release --allow-unrelated-histories
 

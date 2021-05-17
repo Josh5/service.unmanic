@@ -4,5 +4,4 @@
 /venv/**
 
 # Only ignored in master branch:
-/addon.xml
 /resources/lib/**
