@@ -1,7 +1,3 @@
 # Ignored in all branches:
 /.idea/**
-/build.log
 /venv/**
-
-# Only ignored in master branch:
-/resources/lib/**
