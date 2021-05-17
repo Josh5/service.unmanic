@@ -31,6 +31,7 @@
 """
 import json
 import os
+import requests
 import sys
 
 import xbmc
@@ -47,8 +48,6 @@ __ID__ = __addon__.getAddonInfo('id')
 __language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
 
-from resources.lib import requests
-
 files_for_unmanic = []
 
 
@@ -62,7 +61,7 @@ def post_new_pending_task(request_data):
     r = requests.post(add_pending_tasks_url, json=request_data)
 
     # If the status code was not 200, then there is an issue with the API. Possibly unreachable?
-    if not r.status_code != 200:
+    if r.status_code != 200:
         show_error(__addon__.getLocalizedString(33004).format(unmanic_port))
         xbmc.log("Unable to reach Unmanic API", level=xbmc.LOGERROR)
         return {}
