@@ -27,6 +27,9 @@ Only do this if the directory does not already exist in the main repo
 # Checkout the official branch
 git checkout matrix
 
+# Create branch of offical branch
+git checkout -b matrix-service.unmanic
+
 # Use subtree to place addon into main repo tree
 git read-tree --prefix=service.unmanic/ -u unmanic_release
 
@@ -38,7 +41,7 @@ git read-tree --prefix=service.unmanic/ -u unmanic_release
 git checkout matrix
 
 # Create branch of offical branch
-git checkout matrix-ADDON_NAME
+git checkout matrix-service.unmanic
 
 # Fetch the latest changes
 git pull --strategy subtree --squash unmanic release --allow-unrelated-histories
@@ -47,5 +50,5 @@ git pull --strategy subtree --squash unmanic release --allow-unrelated-histories
 git commit --amend
 
 # Force push (only one commit per PR)
-git push -f origin matrix
+git push -f origin matrix-service.unmanic
 ```
