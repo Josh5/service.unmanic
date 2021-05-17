@@ -32,7 +32,6 @@
 
 import os
 import sys
-import json
 import pprint
 import shutil
 import subprocess
@@ -47,16 +46,16 @@ __addonname__ = __addon__.getAddonInfo('name')
 __icon__ = __addon__.getAddonInfo('icon')
 __language__ = __addon__.getLocalizedString
 __profile__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
+__unmanic_module_path__ = xbmcaddon.Addon('script.module.unmanic').getAddonInfo('path')
 
 # Modify path to include lib directory
 sys.path.append(xbmcvfs.translatePath(os.path.join(__path__, 'resources', 'lib')))
-# import unmanic's SingletonType
-from unmanic.libs.singleton import SingletonType
 
 
-class UnmanicServiceHandle(object, metaclass=SingletonType):
+class UnmanicServiceHandle(object):
     unmanic_process = None
-    unmanic_command = [sys.executable, os.path.join(__path__, 'resources', 'lib', 'unmanic', 'service.py')]
+    # unmanic_command = [sys.executable, os.path.join(__path__, 'resources', 'lib', 'unmanic', 'service.py')]
+    unmanic_command = [sys.executable, os.path.join(__unmanic_module_path__, 'lib', 'unmanic', 'service.py')]
     unmanic_env = {}
 
     def __init__(self):
@@ -127,5 +126,6 @@ class UnmanicServiceHandle(object, metaclass=SingletonType):
         # Also write settings to set in environment
         self.unmanic_env = os.environ.copy()
         self.unmanic_env['HOME_DIR'] = __profile__
+        self.unmanic_env['UI_PORT'] = __addon__.getSetting("P_port")
         self.unmanic_env['CONFIG_PATH'] = os.path.join(__profile__, '.unmanic', 'config')
         self.unmanic_env['PYTHONPATH'] = os.path.join(__path__, 'resources', 'lib')
