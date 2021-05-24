@@ -41,7 +41,7 @@ Unmanic provides you with the following main functions:
  - A Web UI to easily configure your preferred video presets and monitor the progress of your library conversion.
     </description>
     <platform>linux</platform>
-    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+    <license>GPL-3.0-only</license>
     <forum>https://forum.kodi.tv/showthread.php?tid=359064</forum>
     <website>https://unmanic.app</website>
     <email>jsunnex@gmail.com</email>
