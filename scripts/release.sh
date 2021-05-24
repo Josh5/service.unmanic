@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Monday, 17th May 2021 10:11:31 pm
+# Last Modified: Monday, 24th May 2021 3:59:16 pm
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -48,11 +48,14 @@ pushd ${tmp_dir}/service.unmanic &> /dev/null
 echo -e "\n*** Installing updates to release branch in temp repo"
 rsync -ra --delete \
     --exclude='.git/' \
+    --exclude='.idea/' \
     --exclude='docs/' \
     --exclude='scripts/' \
+    --exclude='venv/' \
     ${project_directory}/ ${tmp_dir}/service.unmanic/
 
-echo -e "\n*** Modify gitignore for release branch in temp repo"
+echo -e "\n*** Remove gitignore for release branch in temp repo"
+rm -f ${tmp_dir}/service.unmanic/.gitignore
 
 popd &> /dev/null
 
