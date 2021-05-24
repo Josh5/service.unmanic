@@ -5,7 +5,7 @@
 # File Created: Thursday, 8th April 2021 8:26:57 pm
 # Author: Josh.5 (jsunnex@gmail.com)
 # -----
-# Last Modified: Monday, 24th May 2021 3:59:16 pm
+# Last Modified: Monday, 24th May 2021 4:04:16 pm
 # Modified By: Josh.5 (jsunnex@gmail.com)
 ###
 
@@ -68,7 +68,7 @@ commit_message="Deploy add-on - based on ${current_commit} ${dirty_repo} - Requi
 echo ${commit_message}
 git add .
 git commit -m "${commit_message}"
-git tag -f ${unmanic_version}
+git tag -f ${plugin_version}
 
 popd &> /dev/null
 
